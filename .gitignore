@@ -1,0 +1,8 @@
+.private/
+__pycache__/
+.test-*/
+.DS_Store
+dist/
+evidence/
+PRODUCT_DESIGN.md
+*.log

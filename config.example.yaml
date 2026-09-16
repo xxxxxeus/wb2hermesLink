@@ -1,0 +1,27 @@
+# wb2hermesLink v0.1.0 reference fragment, not a complete Hermes config.
+# install substitutes and shell-quotes both absolute paths. No secrets here.
+secrets:
+  command:
+    enabled: true
+    command: '"<HERMES_PYTHON>" -I -B "<INSTALL_ROOT>/wblink.py" env'
+    override_existing: true
+    helper_timeout_seconds: 5
+providers:
+  workbuddy:
+    name: WorkBuddy
+    base_url: https://copilot.tencent.com/v2
+    transport: chat_completions
+    default_model: hy3
+    api_key: ${WBLINK_ACCESS_TOKEN}
+    extra_headers:
+      X-User-Id: ${WBLINK_USER_ID_SECRET}
+      X-Domain: ${WBLINK_DOMAIN_SECRET}
+      X-Product: SaaS
+      X-IDE-Type: Hermes
+      X-IDE-Name: ${WBLINK_CLIENT_NAME}
+    discover_models: false
+    # User working budget; not a claim about upstream maximum context.
+    models:
+      hy3: {context_length: 262144}
+# Never replace these references with literals or key_env.
+# No global default, auxiliary routes or other secret sources are changed.

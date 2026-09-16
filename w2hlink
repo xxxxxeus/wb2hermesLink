@@ -1,0 +1,23 @@
+#!/bin/bash
+set -eu
+if [[ $# -eq 0 || "${1:-}" == --help ]]; then
+  echo 'wb2hermesLink v0.1.0 (macOS; native Windows unsupported)'
+  echo 'Usage: w2hlink [--hermes-root PATH] [--hermes-home PATH] COMMAND'
+  echo 'Commands: install [--yes], uninstall [--yes], login, status'
+  echo '          models list|add|set|default|remove, check config|model'
+  echo 'models add/set ID --context-length N; check model [--model ID]'
+  exit 0
+fi
+if [[ "${1:-}" == --version ]]; then echo 'wb2hermesLink 0.1.0'; exit 0; fi
+if [[ "$(/usr/bin/uname -s)" != Darwin ]]; then echo 'unsupported_platform_macos_only' >&2; exit 1; fi
+root="${W2HLINK_HERMES_ROOT:-$HOME/.hermes/hermes-agent}"
+args=("$@")
+for ((i=0; i<$#; i++)); do
+  if [[ "${args[$i]}" == --hermes-root ]]; then
+    ((i+=1)); [[ $i -lt $# ]] || { echo 'missing_hermes_root' >&2; exit 1; }
+    root="${args[$i]}"
+  elif [[ "${args[$i]}" == --hermes-root=* ]]; then root="${args[$i]#--hermes-root=}"; fi
+done
+[[ -x "$root/venv/bin/python" && -f "$root/hermes_cli/config.py" ]] || { echo 'Hermes not found. Supply --hermes-root PATH; no Python will be installed.' >&2; exit 1; }
+dir="$(cd -- "$(dirname -- "$0")" && pwd -P)"
+exec "$root/venv/bin/python" -I -B "$dir/w2hlink_cli.py" "${args[@]}"

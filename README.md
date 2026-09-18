@@ -1,13 +1,47 @@
 # wb2hermesLink (w2hlink)
 
-macOS CLI：把 WorkBuddy 模型接入现有 Hermes named custom provider。无 GUI、代理、后台服务或新依赖，不捆绑 Python、Hermes 或 WorkBuddy 客户端。
+**让现有 Hermes 使用你自己的 WorkBuddy 账号调用模型。** `w2hlink` 是一个 macOS 命令行接入工具：负责配置 provider、管理模型名称与上下文，以及登录认证；日常仍然在 Hermes 中使用模型。
+
+无 GUI、本地代理、后台服务或新依赖，不捆绑 Python、Hermes 或 WorkBuddy 客户端。
 
 版本 **v0.1.0**，MIT。仅本地验证过 **Hermes v0.21.3 (2026.9.14)、macOS 26.3.1 arm64**。不支持原生 Windows；Intel、其它 macOS、Linux/WSL 未验证，不承诺兼容。
+
+### 接入方式
+
+```text
+         w2hlink install / models        w2hlink login
+                    |                         |
+                    v                         v
+              Hermes config             Browser login
+                    |                         |
+                    |                         v
+                    |                     Local auth
+                    |                         |
+                    |                  secrets.command
+                    |                  (wblink.py env)
+                    |                         |
+                    +------------+------------+
+                                 |
+                                 v
+                           Hermes Agent
+                                 |
+                           direct HTTPS
+                                 |
+                                 v
+                           WorkBuddy API
+                                 |
+                                 v
+                             hy3 / ...
+```
+
+- **配置和登录**：`w2hlink` 写入 WorkBuddy provider、模型与上下文配置；显式执行 `login` 时，通过浏览器完成授权，将认证保存在本机。
+- **加载认证**：Hermes 启动时，通过原生 `secrets.command` 调用 `wblink.py env`，读取已保存的认证；不会自动打开登录页面。
+- **调用模型**：Hermes 直接请求 WorkBuddy API。`w2hlink` 不转发聊天流量，不需要常驻进程，也不需要运行 WorkBuddy 客户端。
 
 ## 下载后开始
 
 项目源码：[xxxxxeus/wb2hermesLink](https://github.com/xxxxxeus/wb2hermesLink)。
-v0.1.0当前为准备中的草稿，附件尚未公开下载；正式发布后从[Releases](https://github.com/xxxxxeus/wb2hermesLink/releases)获取以下文件。
+**v0.1.0 已发布**，从 [Release 页面](https://github.com/xxxxxeus/wb2hermesLink/releases/tag/v0.1.0)获取以下文件。
 
 1. 下载 `wb2hermesLink-v0.1.0-macos.zip` 和 `SHA256SUMS`，在同目录执行 `shasum -a 256 -c SHA256SUMS`。
 2. 解压，打开终端进入解压目录。无需系统 Python，启动器使用已存在的 Hermes Python。
